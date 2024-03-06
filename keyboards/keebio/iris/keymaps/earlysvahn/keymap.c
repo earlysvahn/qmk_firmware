@@ -1,18 +1,59 @@
-// Copyright 2023 Danny Nguyen (@nooges)
-// SPDX-License-Identifier: GPL-2.0-or-later
-
 #include QMK_KEYBOARD_H
 
 #define _COLEMAK 0
 #define _LOWER 1
 #define _RAISE 2
 #define _ADJUST 3
+#define _MACROS 4
+
+// Beautify
+#define LT_LCTL LT(_LOWER,KC_LCTL)
+#define LT_RALT LT(_RAISE,KC_RALT)
 
 enum custom_keycodes {
   COLEMAK = SAFE_RANGE,
   LOWER,
   RAISE,
   ADJUST,
+  MACROS,
+  COLON_W,
+  COPY,
+  PASTE,
+  TMUX_LEFT,
+  TMUX_DOWN,
+  TMUX_UP,
+  TMUX_RIGHT,
+  TMUX_S,
+  TMUX_V,
+};
+
+enum {
+    LALT_RAYC,
+    VIM_SAVE
+};
+
+void raycast_on_double_tap(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        SEND_STRING(SS_LGUI(SS_TAP(X_SPC)));
+        reset_tap_dance(state);
+    } else {
+        SEND_STRING(SS_TAP(X_LALT));
+    }
+}
+
+void vim_save_on_double_tap(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        SEND_STRING(":w\n");
+        reset_tap_dance(state);
+    } else {
+        register_code16(KC_W);
+        unregister_code16(KC_W);
+    }
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [LALT_RAYC] = ACTION_TAP_DANCE_FN(raycast_on_double_tap),
+    [VIM_SAVE] = ACTION_TAP_DANCE_FN(vim_save_on_double_tap)
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -21,13 +62,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
      KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                               KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                               KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSLS,
+     KC_TAB,  KC_Q,    TD(VIM_SAVE),    KC_F,    KC_P,    KC_B,                       KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSLS,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                               KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+     KC_ESC,  KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                               KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_D,    KC_ESC,           KC_A,    KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+     KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_D,    TD(LALT_RAYC),    MO(_MACROS), KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                         LT(_LOWER,KC_LCTL), KC_LGUI, KC_SPC,                    KC_ENT, KC_RALT,  LT(_RAISE,KC_RALT)
+                                    LT_LCTL, KC_LGUI, KC_SPC,            KC_ENT,  KC_BSPC, LT_RALT
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   ),
 
@@ -37,11 +78,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                            KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_BSPC, _______, KC_MINS, KC_SLASH,KC_LCBR, KC_LBRC,                            KC_RBRC, KC_RCBR, KC_BSLS, KC_MINS, KC_PLUS, _______,
+     KC_BSPC, KC_PEQL, KC_MINS, KC_SLASH,KC_LCBR, KC_LBRC,                            KC_RBRC, KC_RCBR, KC_BSLS, KC_MINS, KC_PLUS, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______ , _______, _______, _______, _______, _______, _______,          _______, _______, _______, _______,_______, _______, _______,
+     _______ , _______, _______, _______, _______, _______, _______,          _______, _______,KC_QUES,KC_UNDS,_______, _______, _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    _______, KC_DEL, KC_SPC,                    KC_ENT,  _______, _______
+                                    _______, KC_DEL, KC_SPC,                     KC_BSPC,  _______, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   ),
 
@@ -49,11 +90,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
      _______, _______, _______, _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   _______,                            _______, KC_PGUP, _______, _______, KC_HOME, _______,
+     _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   _______,                            _______, KC_PGUP, KC_E,    KC_W, KC_HOME, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, KC_F5,   KC_F6,   KC_F7,   KC_F8,   _______,                            _______, KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,_______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, KC_F9,   KC_F10,  KC_F11, KC_F12,   _______, _______,          _______, _______, KC_PGDN,  _______, _______, KC_END, MO(_ADJUST),
+     _______, KC_F9,   KC_F10,  KC_F11, KC_F12,   _______, _______,          _______, _______, KC_PGDN, KC_B,    _______, KC_END, MO(_ADJUST),
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     _______, _______, _______,                   _______, _______, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
@@ -71,47 +112,99 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     _______, _______, _______,                   _______, _______, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
+  ),
+
+  [_MACROS] = LAYOUT(
+  //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
+     _______, _______, _______, _______, _______, _______,                            _______, _______, _______, _______, _______, BL_OFF,
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
+     _______, BL_OFF,  BL_ON,   _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
+     _______,TMUX_LEFT,TMUX_DOWN,TMUX_UP,TMUX_RIGHT,_______,                          _______, _______, _______, _______, _______, _______,
+  //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
+     _______,TMUX_S,   TMUX_V,  _______, _______, _______, _______,          _______, _______, _______, _______, _______, _______, _______,
+  //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
+                                    _______, KC_LALT, COLON_W,                   _______, _______, _______
+                                // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case COLEMAK:
-      if (record->event.pressed) {
-        set_single_persistent_default_layer(_COLEMAK);
-      }
-      return false;
-      break;
-    case LOWER:
-      if (record->event.pressed) {
-        layer_on(_LOWER);
-        update_tri_layer(_LOWER, _RAISE, _ADJUST);
-        // Turn off backlight
-        backlight_set(0);
-      } else {
-        layer_off(_LOWER);
-        update_tri_layer(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case RAISE:
-      if (record->event.pressed) {
-        layer_on(_RAISE);
-        update_tri_layer(_LOWER, _RAISE, _ADJUST);
-      } else {
-        layer_off(_RAISE);
-        update_tri_layer(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case ADJUST:
-      if (record->event.pressed) {
-        layer_on(_ADJUST);
-      } else {
-        layer_off(_ADJUST);
-      }
-      return false;
-      break;
-  }
-  return true;
+    switch (keycode) {
+        case COLEMAK:
+            if (record->event.pressed) {
+                set_single_persistent_default_layer(_COLEMAK);
+            }
+            return false;
+            break;
+        case LOWER:
+            if (record->event.pressed) {
+                layer_on(_LOWER);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+                // Turn off backlight
+                backlight_set(0);
+            } else {
+                layer_off(_LOWER);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+            break;
+        case RAISE:
+            if (record->event.pressed) {
+                layer_on(_RAISE);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            } else {
+                layer_off(_RAISE);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+            break;
+        case ADJUST:
+            if (record->event.pressed) {
+                layer_on(_ADJUST);
+            } else {
+                layer_off(_ADJUST);
+            }
+            return false;
+            break;
+        case MACROS:
+            if (record->event.pressed) {
+                layer_on(_MACROS);
+            } else {
+                layer_off(_MACROS);
+            }
+            return false;
+            break;
+        case TMUX_DOWN:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") SS_DELAY(50) SS_TAP(X_DOWN));
+            }
+            break;
+        case TMUX_UP:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") SS_DELAY(50) SS_TAP(X_UP));
+            }
+            break;
+        case TMUX_LEFT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") SS_DELAY(50) SS_TAP(X_LEFT));
+            }
+            break;
+        case TMUX_RIGHT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") SS_DELAY(50) SS_TAP(X_RIGHT));
+            }
+            break;
+        case TMUX_S:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") "s");
+            }
+            break;
+        case TMUX_V:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a") "v");
+            }
+            break;
+    }
+    return true;
 }
