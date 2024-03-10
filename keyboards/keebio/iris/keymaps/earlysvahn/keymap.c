@@ -20,12 +20,14 @@
 #define APP_TERM KC_F18
 #define APP_ARC KC_F19
 #define APP_SLCK KC_F20
+#define MICMUTE KC_F21
 
 enum custom_keycodes {
   COLEMAK = SAFE_RANGE,
   LOWER,
   RAISE,
   SPECIAL,
+  EXTRA,
   VIM_SAVE,
   VIM_UNDO,
   COPY,
@@ -39,8 +41,7 @@ enum custom_keycodes {
   TMUX_D,
   SWE_A,
   SWE_AA,
-  SWE_O,
-  KC_REP
+  SWE_O
 };
 
 enum {
@@ -55,7 +56,6 @@ void raycast_on_double_tap(tap_dance_state_t *state, void *user_data) {
         SEND_STRING(SS_TAP(X_LALT));
     }
 }
-
 
 tap_dance_action_t tap_dance_actions[] = {
     [LALT_RAYC] = ACTION_TAP_DANCE_FN(raycast_on_double_tap),
@@ -85,7 +85,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, KC_EXLM, KC_PEQL, KC_SCLN, KC_COLN, KC_ASTR,                            KC_PIPE, KC_LPRN, KC_RPRN, KC_QUES, KC_PLUS, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______ ,_______, KC_GRV, KC_SLSH, KC_QUOT, KC_HASH,  _______,          _______, KC_TILD, KC_LCBR, KC_RCBR, KC_UNDS, _______,  _______,
+     _______ ,MICMUTE, KC_GRV, KC_SLSH, KC_QUOT, KC_HASH,  _______,          _______, KC_TILD, KC_LCBR, KC_RCBR, KC_UNDS, _______,  _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     KC_DEL,  _______, _______,                   KC_RSFT, _______, VIM_SAVE
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
@@ -113,7 +113,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, KC_MPRV, KC_MSTP,  KC_MPLY, KC_MNXT, _______,                           _______, TMUX_LEFT,TMUX_DOWN,TMUX_UP,TMUX_RIGHT, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, _______, KC_KB_MUTE, KC_VOLD, KC_VOLU, _______, _______,          _______, _______, TMUX_S, TMUX_V,   _______, _______,   _______,
+     _______, MICMUTE, KC_KB_MUTE, KC_VOLD, KC_VOLU, _______, _______,          _______, _______, TMUX_S, TMUX_V,   _______, _______,   _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     _______, _______, _______,                   VIM_SAVE,KC_LALT, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
@@ -127,51 +127,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, APP_SPT, APP_TERM,APP_ARC, APP_SLCK, _______,                            _______, SWE_A,   SWE_AA,  SWE_O,   _______, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, KC_F21,  KC_F22,  KC_F23,  KC_F24,  _______,  KC_CAPS,         _______, _______, _______, _______, _______, _______, _______,
+     _______, MICMUTE,  KC_F22,  KC_F23,  KC_F24,  _______,  KC_CAPS,         _______, _______, _______, _______, _______, _______, _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     _______, _______, _______,                   _______, _______, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
 };
 
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case COLEMAK:
-            if (record->event.pressed) {
-                set_single_persistent_default_layer(_COLEMAK);
-            }
-            return false;
-            break;
-        case LOWER:
-            if (record->event.pressed) {
-                layer_on(_LOWER);
-                update_tri_layer(_LOWER, _RAISE, _UTILS);
-                // Turn off backlight
-                backlight_set(0);
-            } else {
-                layer_off(_LOWER);
-                update_tri_layer(_LOWER, _RAISE, _UTILS);
-            }
-            return false;
-            break;
-        case RAISE:
-            if (record->event.pressed) {
-                layer_on(_RAISE);
-                update_tri_layer(_LOWER, _RAISE, _UTILS);
-            } else {
-                layer_off(_RAISE);
-                update_tri_layer(_LOWER, _RAISE, _UTILS);
-            }
-            return false;
-            break;
-        case SPECIAL:
-            if (record->event.pressed) {
-                layer_on(_UTILS);
-            } else {
-                layer_off(_UTILS);
-            }
-            return false;
-            break;
         case SWE_A:
           if (record->event.pressed) {
                 SEND_STRING(SS_LALT("a"));
