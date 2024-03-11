@@ -7,18 +7,30 @@
 #define _EXTRA 4
 
 // Beautify
-#define LT_LOWER LT(_LOWER,KC_LCTL)
-#define LT_RAISE LT(_RAISE,KC_RALT)
-#define LT_EXTRA LT(_RAISE,KC_LALT)
+// #define LT_LOWER LT(_LOWER,KC_LCTL)
+// #define LT_RAISE LT(_RAISE,KC_RALT)
+// #define LT_EXTRA LT(_EXTRA,KC_LALT)
+// #define LT_ESC LT(_UTILS,KC_ESC)
+
+#define LT_LOWER MO(_LOWER)
+#define LT_RAISE MO(_RAISE)
+#define LT_EXTRA MO(_EXTRA)
 #define LT_ESC LT(_UTILS,KC_ESC)
+
+// Home row mods
 #define MT_LSFT MT(MOD_LSFT, KC_T)
+#define MT_LGUI MT(MOD_LGUI, KC_S)
+#define MT_LCTL MT(MOD_LCTL, KC_R)
+#define MT_LALT MT(MOD_LALT, KC_A)
+
 #define MT_RSFT MT(MOD_RSFT, KC_N)
+#define MT_RGUI MT(MOD_RGUI, KC_E)
+#define MT_RCTL MT(MOD_RCTL, KC_I)
+#define MT_RALT MT(MOD_RALT, KC_O)
+
 
 #define KC_COPY LGUI(KC_C)
 #define KC_PSTE LGUI(KC_V)
-
-#define MOD_LSFT OSM(MOD_LSFT)
-#define MOD_RSFT OSM(MOD_RSFT)
 
 // Appplication binds
 #define APP_TEAM KC_F16
@@ -38,24 +50,8 @@ enum custom_keycodes {
   VIM_UNDO,
   SWE_A,
   SWE_AA,
-  SWE_O
-};
-
-enum {
-    LALT_RAYC,
-};
-
-void raycast_on_double_tap(tap_dance_state_t *state, void *user_data) {
-    if (state->count >= 2) {
-        SEND_STRING(SS_LGUI(SS_TAP(X_SPC)));
-        reset_tap_dance(state);
-    } else {
-        SEND_STRING(SS_TAP(X_LALT));
-    }
-}
-
-tap_dance_action_t tap_dance_actions[] = {
-    [LALT_RAYC] = ACTION_TAP_DANCE_FN(raycast_on_double_tap),
+  SWE_O,
+  RAYCAST
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -64,11 +60,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
      _______, _______, _______, _______, _______, _______,                            _______, _______, SWE_A,   SWE_AA,  SWE_O,  _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                               KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSLS,
+     KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                               KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_COLN,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     LT_ESC,  KC_A,    KC_R,    KC_S,    MT_LSFT, KC_G,                               KC_M,    MT_RSFT, KC_E,    KC_I,    KC_O,    KC_COLN,
+     LT_ESC,  MT_LALT, MT_LCTL, MT_LGUI, MT_LSFT, KC_G,                               KC_M,    MT_RSFT, MT_RGUI, MT_RCTL, MT_RALT, LT_ESC,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     MOD_LSFT, KC_Z,   KC_X,    KC_C,    KC_V,    KC_D,    TD(LALT_RAYC),    _______, KC_K,  KC_H,    KC_DOT,  KC_COMM,  KC_SLSH, MOD_RSFT,
+     MOD_LSFT, KC_Z,   KC_X,    KC_C,    KC_V,    KC_D,    KC_LALT,          _______, KC_K,  KC_H,    KC_DOT,  KC_COMM,  KC_SLSH, MOD_RSFT,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     KC_LGUI, LT_LOWER, KC_SPC,                   KC_ENT,  KC_BSPC, LT_RAISE
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
@@ -78,13 +74,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
      _______, _______, _______, _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, KC_PMNS, KC_PPLS, KC_BSLS, KC_AT,   KC_DOT,                             KC_AMPR, KC_LBRC, KC_RBRC, KC_PERC, KC_CIRC, _______,
+     _______, KC_PMNS, KC_PPLS, KC_COMM, KC_DOT,  KC_AT,                              KC_DLR,  KC_LBRC, KC_RBRC, KC_PERC, KC_CIRC, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     _______, KC_EXLM, KC_PEQL, KC_SCLN, KC_COLN, KC_ASTR,                            KC_PIPE, KC_LPRN, KC_RPRN, KC_QUES, KC_PLUS, _______,
+     _______, KC_EXLM, KC_PEQL, KC_AMPR, KC_SCLN, KC_COLN,                            KC_PIPE, KC_LPRN, KC_RPRN, KC_QUES, KC_PLUS, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     _______ ,MICMUTE, KC_GRV, KC_SLSH, KC_QUOT, KC_HASH,  _______,          _______, KC_TILD, KC_LCBR, KC_RCBR, KC_UNDS, _______,  _______,
+     _______ ,KC_GRV, KC_BSLS, KC_SLSH,  KC_QUOT, KC_HASH,  _______,         _______, KC_ASTR, KC_LCBR, KC_RCBR, KC_UNDS, _______,  _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    KC_DEL,  _______, _______,                   KC_RSFT, _______, VIM_SAVE
+                                    _______,  _______, _______,                  _______, KC_RSFT, VIM_SAVE
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   ),
 
@@ -98,8 +94,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      _______, KC_PASTE,KC_7,    KC_8,    KC_9,    _______, _______,          _______, _______, KC_PGDN, KC_B,    _______, KC_DLR,  _______,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    _______, LT_EXTRA,QK_REP,                    _______, _______, _______
-                                // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
+                                   _______,MO(_EXTRA),_______,                    _______, _______, _______
+                               // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   ),
 
   [_UTILS] = LAYOUT(
@@ -112,7 +108,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      _______, MICMUTE, KC_KB_MUTE, KC_VOLD, KC_VOLU, _______, _______,       _______, _______, KC_F9,   KC_F10,  KC_F11,  KC_F12,  QK_BOOT,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    _______, _______, _______,                   _______, _______, _______
+                                    _______, _______, RAYCAST,                   _______, _______, _______
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   ),
 
@@ -130,7 +126,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
 };
-
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -161,6 +156,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case VIM_UNDO:
             if (record->event.pressed) {
                 SEND_STRING(SS_LCTL("r"));
+            }
+            return false;
+            break;
+        case RAYCAST:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI(SS_TAP(X_SPC)));
             }
             return false;
             break;
